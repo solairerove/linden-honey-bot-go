@@ -3,16 +3,16 @@ package main
 import (
 	"log"
 
+	"github.com/satori/go.uuid"
+
 	"gopkg.in/telegram-bot-api.v4"
 )
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI("bot api token")
+	bot, err := tgbotapi.NewBotAPI("Bot token")
 	if err != nil {
 		log.Panic(err)
 	}
-
-	bot.Debug = true
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
@@ -22,15 +22,27 @@ func main() {
 	updates, err := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message == nil {
+		if update.InlineQuery.Query == "" {
 			continue
 		}
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		log.Printf("Inline query is %s", update.InlineQuery.Query)
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
+		generatedUUID, _ := uuid.NewV4()
+		id := generatedUUID.String()
 
-		bot.Send(msg)
+		article := tgbotapi.NewInlineQueryResultArticle(id, "Here are", update.InlineQuery.Query)
+		article.Description = update.InlineQuery.Query
+
+		inlineConf := tgbotapi.InlineConfig{
+			InlineQueryID: update.InlineQuery.ID,
+			IsPersonal:    true,
+			CacheTime:     0,
+			Results:       []interface{}{article},
+		}
+
+		if _, err := bot.AnswerInlineQuery(inlineConf); err != nil {
+			log.Println(err)
+		}
 	}
 }
