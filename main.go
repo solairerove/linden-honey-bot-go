@@ -25,7 +25,7 @@ type Verse struct {
 }
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI("164424204:AAFlNSTSwpQMOLme2t-0GSkvYJY6Gd8yOfA")
+	bot, err := tgbotapi.NewBotAPI("164424204:AAHL7rBQyVVKcNt1bCl8w3Ew7-GGII24WP0")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -74,6 +74,9 @@ func main() {
 			}
 
 			var verses string
+			verses = verses + "<strong>" + song.Title + "</strong>\n\n"
+			verses = verses + "<strong>Автор: </strong>" + song.Author + "\n"
+			verses = verses + "<strong>Альбом: </strong>" + song.Album + "\n\n"
 			for _, v := range song.Verses {
 				verses = verses + v.Data
 			}
